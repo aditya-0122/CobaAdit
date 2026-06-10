@@ -80,12 +80,21 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: maven
           server-id: github
-          settings-path: ${{ github.workspace }}
-      - name: Publish to GitHub Packages
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Create settings.xml
         run: |
-          cp ~/.m2/settings.xml .
-          mvn deploy -s settings.xml -DskipTests
+          cat <<EOF > settings.xml
+          <settings>
+            <servers>
+              <server>
+                <id>github</id>
+                <username>${{ github.actor }}</username>
+                <password>${{ secrets.GITHUB_TOKEN }}</password>
+              </server>
+            </servers>
+          </settings>
+          EOF
+
+      - name: Publish to GitHub Packages
+        run: mvn deploy -s settings.xml -DskipTests
