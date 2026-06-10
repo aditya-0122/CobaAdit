@@ -18,12 +18,10 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
-          server-id: github # Penting: ID ini harus sama dengan di pom.xml
-          settings-path: ${{ github.workspace }}
       - name: Compile Project
         run: mvn clean compile --batch-mode
 
-        # 2. Tahap Continuous Testing
+  # 2. Tahap Continuous Testing
   test:
     needs: build
     runs-on: ubuntu-latest
@@ -35,12 +33,10 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
-          server-id: github
-          settings-path: ${{ github.workspace }}
       - name: Run Tests
         run: mvn test --batch-mode
 
-        # 3. Tahap Continuous Inspection (SonarCloud)
+  # 3. Tahap Continuous Inspection
   inspection:
     needs: test
     runs-on: ubuntu-latest
@@ -72,13 +68,24 @@ jobs:
         with:
           scanMetadataReportFile: target/sonar/report-task.txt
 
-          # 4. Deployment (Hanya jika tahap sebelumnya sukses)
+  # 4. Tahap Continuous Deployment
+  deploy:
+    needs: inspection
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+          server-id: github
+          settings-path: ${{ github.workspace }}
       - name: Publish to GitHub Packages
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Salin file ke root agar pasti terbaca
           cp ~/.m2/settings.xml .
-          # Deploy menggunakan file yang sudah disalin ke root
           mvn deploy -s settings.xml -DskipTests
