@@ -78,5 +78,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Kita gunakan path yang ditemukan yaitu di ~/.m2/settings.xml
-          mvn deploy -s ~/.m2/settings.xml -DskipTests
+          # Salin file ke root agar pasti terbaca
+          cp ~/.m2/settings.xml .
+          # Deploy menggunakan file yang sudah disalin ke root
+          mvn deploy -s settings.xml -DskipTests
