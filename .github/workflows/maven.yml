@@ -35,6 +35,8 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
+          server-id: github
+          settings-path: ${{ github.workspace }}
       - name: Run Tests
         run: mvn test --batch-mode
 
@@ -76,7 +78,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # 1. Pastikan file ada
-          ls -la settings.xml
-          # 2. Jalankan deployment
-          mvn deploy -s settings.xml -DskipTests
+          # Cetak lokasi workspace untuk debugging
+          echo "Workspace: $GITHUB_WORKSPACE"
+          # Cari file settings.xml di mana pun ia berada
+          find . -name "settings.xml"
+          
+          # Gunakan path absolut yang dihasilkan setup-java
+          mvn deploy -s "${{ github.workspace }}/settings.xml" -DskipTests
