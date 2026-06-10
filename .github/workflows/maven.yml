@@ -54,11 +54,12 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar --batch-mode \
+          mvn clean verify sonar:sonar --batch-mode \
           -Dsonar.host.url=https://sonarcloud.io \
           -Dsonar.projectKey=aditya-0122_CobaAdit \
           -Dsonar.organization=aditya-0122 \
-          -Dsonar.token=$SONAR_TOKEN
+          -Dsonar.token=$SONAR_TOKEN \
+          -Dsonar.java.binaries=target/classes
       - name: SonarCloud Quality Gate Check
         uses: sonarsource/sonarqube-quality-gate-action@master
         timeout-minutes: 5
