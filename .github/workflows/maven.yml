@@ -78,10 +78,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Cetak lokasi workspace untuk debugging
-          echo "Workspace: $GITHUB_WORKSPACE"
-          # Cari file settings.xml di mana pun ia berada
-          find . -name "settings.xml"
-          
-          # Gunakan path absolut yang dihasilkan setup-java
-          mvn deploy -s "${{ github.workspace }}/settings.xml" -DskipTests
+          # Kita gunakan path yang ditemukan yaitu di ~/.m2/settings.xml
+          mvn deploy -s ~/.m2/settings.xml -DskipTests
